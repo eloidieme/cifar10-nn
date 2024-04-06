@@ -1,0 +1,121 @@
+Epoch 1/40
+	 * Train loss: 1.9791776006329906
+	 * Validation loss: 2.0018783828170292
+Epoch 2/40
+	 * Train loss: 1.8985212755390466
+	 * Validation loss: 1.9374133778793812
+Epoch 3/40
+	 * Train loss: 1.8534405577833584
+	 * Validation loss: 1.9001521215845791
+Epoch 4/40
+	 * Train loss: 1.826439974361572
+	 * Validation loss: 1.883074083499089
+Epoch 5/40
+	 * Train loss: 1.8077672468883728
+	 * Validation loss: 1.8680515266568871
+Epoch 6/40
+	 * Train loss: 1.7858500881043609
+	 * Validation loss: 1.8576544799811687
+Epoch 7/40
+	 * Train loss: 1.7726460201092806
+	 * Validation loss: 1.8505057272163832
+Epoch 8/40
+	 * Train loss: 1.7591222404967415
+	 * Validation loss: 1.8417385198069658
+Epoch 9/40
+	 * Train loss: 1.7498267877676406
+	 * Validation loss: 1.838630789505754
+Epoch 10/40
+	 * Train loss: 1.741132179443016
+	 * Validation loss: 1.8327562992428488
+Epoch 11/40
+	 * Train loss: 1.7319844360358039
+	 * Validation loss: 1.8257303416887354
+Epoch 12/40
+	 * Train loss: 1.7260496027591494
+	 * Validation loss: 1.8266756823000325
+Epoch 13/40
+	 * Train loss: 1.717789137519835
+	 * Validation loss: 1.8182750733518858
+Epoch 14/40
+	 * Train loss: 1.7092037760675836
+	 * Validation loss: 1.8180288974681986
+Epoch 15/40
+	 * Train loss: 1.7039751227523958
+	 * Validation loss: 1.8185833023561562
+Epoch 16/40
+	 * Train loss: 1.6984690807457596
+	 * Validation loss: 1.816284078557265
+Epoch 17/40
+	 * Train loss: 1.692531835436641
+	 * Validation loss: 1.812319311538028
+Epoch 18/40
+	 * Train loss: 1.6885136103525629
+	 * Validation loss: 1.8126400095515773
+Epoch 19/40
+	 * Train loss: 1.683769247080516
+	 * Validation loss: 1.8098662323491264
+Epoch 20/40
+	 * Train loss: 1.6804275439236547
+	 * Validation loss: 1.8090333602649862
+Epoch 21/40
+	 * Train loss: 1.6743387573612862
+	 * Validation loss: 1.8064107630236816
+Epoch 22/40
+	 * Train loss: 1.6733540431618072
+	 * Validation loss: 1.8088444346213326
+Epoch 23/40
+	 * Train loss: 1.6657112868722077
+	 * Validation loss: 1.805295417715931
+Epoch 24/40
+	 * Train loss: 1.6644839323151388
+	 * Validation loss: 1.8072936809085463
+Epoch 25/40
+	 * Train loss: 1.6609456283148452
+	 * Validation loss: 1.8041957331603604
+Epoch 26/40
+	 * Train loss: 1.6558079881163532
+	 * Validation loss: 1.801363297460084
+Epoch 27/40
+	 * Train loss: 1.6518132866965822
+	 * Validation loss: 1.8001082413762184
+Epoch 28/40
+	 * Train loss: 1.649118399697556
+	 * Validation loss: 1.7978437600340815
+Epoch 29/40
+	 * Train loss: 1.6458356635767302
+	 * Validation loss: 1.7989346242121835
+Epoch 30/40
+	 * Train loss: 1.6443503336622425
+	 * Validation loss: 1.8004971517608876
+Epoch 31/40
+	 * Train loss: 1.639989291628595
+	 * Validation loss: 1.7964495671150356
+Epoch 32/40
+	 * Train loss: 1.6367716439017401
+	 * Validation loss: 1.7975140889391212
+Epoch 33/40
+	 * Train loss: 1.634864852982139
+	 * Validation loss: 1.7977282094585194
+Epoch 34/40
+	 * Train loss: 1.6308968485756299
+	 * Validation loss: 1.7966470775850745
+Epoch 35/40
+	 * Train loss: 1.6287411992263954
+	 * Validation loss: 1.7958823970151705
+Epoch 36/40
+	 * Train loss: 1.6266819017017324
+	 * Validation loss: 1.7970235247406727
+Epoch 37/40
+	 * Train loss: 1.6236335042551997
+	 * Validation loss: 1.7988891207933106
+Epoch 38/40
+	 * Train loss: 1.6200848931934666
+	 * Validation loss: 1.7959352166814206
+Epoch 39/40
+	 * Train loss: 1.6191078610131948
+	 * Validation loss: 1.7950559426266344
+Epoch 40/40
+	 * Train loss: 1.616642578748081
+	 * Validation loss: 1.7933726666915948
+Accuracy on test data: 0.3906
