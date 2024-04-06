@@ -51,6 +51,9 @@ class Model(ABC):
     def _compute_gradients(self, X_batch: np.ndarray, Y_batch: np.ndarray, Ws: List[np.ndarray], bs: List[np.ndarray]):
         pass
 
+    def get_current_learning_rate():
+        pass
+
     def compute_grads_num_slow(self, X, Y, Ws, bs, h=1e-6):
         grads_W = [np.zeros(W.shape) for W in Ws]
         grads_b = [np.zeros(b.shape) for b in bs]
@@ -157,7 +160,9 @@ class Model(ABC):
             for i in range(ga_b[k].shape[0]):
                 rel_err_b[k, i] = (np.abs(ga_b[k][i] - gn_b[k][i])) / \
                     (max(eps, np.abs(ga_b[k][i]) + np.abs(gn_b[k][i])))
-        return max(np.max(rel_err_W), np.max(rel_err_b))
+        max_diff = max(np.max(rel_err_W), np.max(rel_err_b))
+        logger.info("Maximum difference between numerical and analytical gradients: %.2e", max_diff)
+        return max_diff
 
     def compute_accuracy(self, X, y, Ws, bs):
         P = self._evaluate_classifier(X, Ws, bs)[-1]
@@ -197,11 +202,13 @@ class Model(ABC):
 
     def run_training(self, gd_params, savepath, test_data = None):
         Ws_train, bs_train, train_costs, val_costs = self.mini_batch_gd(gd_params)
+        logger.info("Training completed.")
 
         if test_data:
             (X_test, y_test) = test_data
             accuracy = self.compute_accuracy(X_test, y_test, Ws_train, bs_train)
             print(f"Accuracy on test data: {accuracy}")
+            logger.info("Accuracy on test data: %.3f", accuracy)
 
         plt.plot(np.arange(0, gd_params["n_epochs"] + 1),
                  train_costs, label="training loss")
@@ -215,6 +222,7 @@ class Model(ABC):
         plt.grid()
         plt.xlim(0, gd_params["n_epochs"])
         plt.savefig(savepath, bbox_inches='tight')
+        logger.info("Figure saved.")
 
 
 class OneLayerClassifier(Model):

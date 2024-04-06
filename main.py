@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import argparse
 
 import numpy as np
 
@@ -8,7 +9,7 @@ from nnClassifier import logger
 from nnClassifier.data.make_dataset import make_splits
 from nnClassifier.features.build_features import normalize_splits
 from nnClassifier.models.train_model import OneLayerClassifier, TwoLayerClassifier
-from nnClassifier.models.predict_model import predict
+from nnClassifier.models.predict import predict
 
 def main(seed):
     np.random.seed(seed)
@@ -18,14 +19,32 @@ def main(seed):
     X_val, Y_val, y_val = splits_norm["validation"]
     X_test, _, y_test = splits_norm["test"]
 
-    gd_params = {"n_batch": int(sys.argv[1]), "n_epochs": int(sys.argv[2]), "eta": float(sys.argv[3])}
-    lamda = float(sys.argv[4])
+    parser = argparse.ArgumentParser(description='Argument parser for training.')
 
-    savepath = f"./reports/figures/training_curves_{gd_params['n_batch']}_{gd_params['n_epochs']}_{gd_params['eta']}_{lamda}.png"
+    parser.add_argument('-nl', '--n-layers', dest='n_layers', type=int, default=1, help='Specify number of layers.')
+    parser.add_argument('-nb', '--n-batches', dest='n_batch', type=int, default=100, help='Specify number of samples in one batch.')
+    parser.add_argument('-ne', '--n-epochs', dest='n_epochs', type=int, default=40, help='Specify number of epochs.')
+    parser.add_argument('-e', '--eta', dest='eta', type=float, default=0.001, help='Specify value of learning rate eta.')
+    parser.add_argument('-l', '--lambda', dest='lamda', type=float, default=0.0, help='Specify value of regularization factor lambda.')
+    
+    args = parser.parse_args()
 
-    model = TwoLayerClassifier(X_train, Y_train, gd_params, lamda=lamda, validation=(X_val, Y_val, y_val), seed=seed)
+    gd_params = {"n_batch": args.n_batch, "n_epochs": args.n_epochs, "eta": args.eta}
+    lamda = args.lamda
+
+    logger.info("Data loaded for training.")
+
+    savepath = Path(f"./reports/figures/tc_{args.n_layers}:{gd_params['n_batch']}:{gd_params['n_epochs']}:{gd_params['eta']}:{lamda}.png")
+
+    if args.n_layers == 1:
+        model = OneLayerClassifier(X_train, Y_train, gd_params, lamda=lamda, validation=(X_val, Y_val, y_val), seed=seed)
+    elif args.n_layers == 2:
+        model = TwoLayerClassifier(X_train, Y_train, gd_params, lamda=lamda, validation=(X_val, Y_val, y_val), seed=seed)
+    logger.info("Model created.")
+
+    logger.info("Start of main process.")
     model.run_training(gd_params, savepath, test_data=(X_test, y_test))
-    #print(f"Maximum difference between numerical and analytical gradients: {model.validate_gradient(X_train[:50, :20], Y_train[:50, :20], h=1e-5, eps=1e-10)}")
+    logger.info("End of main process.")
 
 if __name__ == '__main__':
     main(400)

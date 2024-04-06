@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
 import os
-import logging
 from pathlib import Path
 import subprocess
 import pickle
 
 from dotenv import find_dotenv, load_dotenv
-
 import numpy as np
+
+from nnClassifier import logger
 
 PROJECT_DIR = Path(__file__).resolve().parents[3]
 DATA_DIR = f"{PROJECT_DIR}/data"
 DATASET_ARCHIVE = "cifar-10-python.tar.gz"
 DATASET_DIR = "cifar-10-batches-py"
 DATASET_URL = f"https://www.cs.toronto.edu/~kriz/{DATASET_ARCHIVE}"
-LOGGER = logging.getLogger("make_dataset")
 
 def get_raw_data():
     """
@@ -35,7 +34,7 @@ def get_raw_data():
                 "-C",
                 DATA_DIR
             ])
-            LOGGER.info("Raw data successfully downloaded and extracted.")
+            logger.info("Raw data successfully downloaded and extracted.")
         elif not DATASET_DIR in os.listdir(DATA_DIR):
             subprocess.run([
                 "tar", 
@@ -44,11 +43,11 @@ def get_raw_data():
                 "-C",
                 DATA_DIR
             ])
-            LOGGER.info("Raw data successfully extracted.")
+            logger.info("Raw data successfully extracted.")
         else:
-            LOGGER.info("Raw data already available. Remove it to download and extract again.")
+            logger.info("Raw data already available. Remove it to download and extract again.")
     except Exception as e:
-        LOGGER.error(f"Error occured while downloading raw data: {e}")
+        logger.error("Error occured while downloading raw data: %s", e)
 
 def load_data(filename):
     with open('data/cifar-10-batches-py/'+filename, 'rb') as fo:
@@ -60,6 +59,7 @@ def load_data(filename):
         one_hot[label] = 1
         Y.append(one_hot)
     Y = np.array(Y).T
+    logger.info("Data from %s correctly loaded.", filename)
     return X, Y, y
 
 def make_splits(train_data, val_data, test_data):
@@ -67,22 +67,24 @@ def make_splits(train_data, val_data, test_data):
     splits["train"] = load_data(train_data)
     splits["validation"] = load_data(val_data)
     splits["test"] = load_data(test_data)
+    logger.info("Split of train, validation and test data successfull.")
     return splits
 
 def make_splits_full(test_data, val_size = 1000):
-	splits = {}
-	for i in range(5):
-		data = load_data(f"data_batch_{i+1}")
-		if i == 0:
-			X, Y, y = data
-		else:
-			X, Y, y = np.concatenate((X, data[0]), axis=1), np.concatenate((Y, data[1]), axis=1), np.concatenate((y, data[2])), 
-	n = X.shape[1]
-	perm = np.random.permutation(n)
-	X_train, X_val = X[:, perm][:, val_size:], X[:, perm][:, :val_size]
-	Y_train, Y_val = Y[:, perm][:, val_size:], Y[:, perm][:, :val_size]
-	y_train, y_val = y[perm][val_size:], y[perm][:val_size]
-	splits["train"] = (X_train, Y_train, y_train)
-	splits["validation"] = (X_val, Y_val, y_val)
-	splits["test"] = load_data(test_data)
-	return splits
+    splits = {}
+    for i in range(5):
+        data = load_data(f"data_batch_{i+1}")
+        if i == 0:
+            X, Y, y = data
+        else:
+            X, Y, y = np.concatenate((X, data[0]), axis=1), np.concatenate((Y, data[1]), axis=1), np.concatenate((y, data[2])), 
+    n = X.shape[1]
+    perm = np.random.permutation(n)
+    X_train, X_val = X[:, perm][:, val_size:], X[:, perm][:, :val_size]
+    Y_train, Y_val = Y[:, perm][:, val_size:], Y[:, perm][:, :val_size]
+    y_train, y_val = y[perm][val_size:], y[perm][:val_size]
+    splits["train"] = (X_train, Y_train, y_train)
+    splits["validation"] = (X_val, Y_val, y_val)
+    splits["test"] = load_data(test_data)
+    logger.info("Split of train, validation and test data using full data successfull.")
+    return splits
