@@ -9,7 +9,7 @@ from dotenv import find_dotenv, load_dotenv
 
 import numpy as np
 
-PROJECT_DIR = Path(__file__).resolve().parents[2]
+PROJECT_DIR = Path(__file__).resolve().parents[3]
 DATA_DIR = f"{PROJECT_DIR}/data"
 DATASET_ARCHIVE = "cifar-10-python.tar.gz"
 DATASET_DIR = "cifar-10-batches-py"
@@ -86,9 +86,3 @@ def make_splits_full(test_data, val_size = 1000):
 	splits["validation"] = (X_val, Y_val, y_val)
 	splits["test"] = load_data(test_data)
 	return splits
-
-if __name__ == '__main__':
-    log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    logging.basicConfig(level=logging.INFO, format=log_fmt)
-    load_dotenv(find_dotenv())
-    get_raw_data()

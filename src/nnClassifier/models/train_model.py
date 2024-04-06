@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tqdm
 import json
+import copy
 from abc import ABC, abstractmethod
 from typing import List
 
@@ -30,6 +31,7 @@ class Model(ABC):
         self.Y_train = Y_train
         self.gd_params = gd_params
         self.lamda = lamda
+        self.validation = validation
         if validation:
             self.X_val = validation[0]
             self.Y_val = validation[1]
@@ -49,7 +51,7 @@ class Model(ABC):
     def _compute_gradients(self, X_batch: np.ndarray, Y_batch: np.ndarray, Ws: List[np.ndarray], bs: List[np.ndarray]):
         pass
 
-    def compute_grads_num_slow(self, X, Y, Ws, bs, lamda=0.0, h=1e-6):
+    def compute_grads_num_slow(self, X, Y, Ws, bs, h=1e-6):
         grads_W = [np.zeros(W.shape) for W in Ws]
         grads_b = [np.zeros(b.shape) for b in bs]
 
@@ -59,11 +61,11 @@ class Model(ABC):
                 b_try[i] -= h
                 bs_try = bs[:]
                 bs_try[layer] = b_try
-                c1 = self.compute_cost(X, Y, Ws, bs_try, lamda)
+                c1 = self._compute_cost(X, Y, Ws, bs_try)
 
                 b_try[i] += 2*h
                 bs_try[layer] = b_try
-                c2 = self.compute_cost(X, Y, Ws, bs_try, lamda)
+                c2 = self._compute_cost(X, Y, Ws, bs_try)
 
                 grads_b[layer][i] = (c2 - c1) / (2 * h)
 
@@ -73,28 +75,31 @@ class Model(ABC):
                     W_try[i, j] -= h
                     Ws_try = Ws[:]
                     Ws_try[layer] = W_try
-                    c1 = self.compute_cost(X, Y, Ws_try, bs, lamda)
+                    c1 = self._compute_cost(X, Y, Ws_try, bs)
 
                     W_try[i, j] += 2*h
                     Ws_try[layer] = W_try
-                    c2 = self.compute_cost(X, Y, Ws_try, bs, lamda)
+                    c2 = self._compute_cost(X, Y, Ws_try, bs)
 
                     grads_W[layer][i, j] = (c2 - c1) / (2 * h)
 
         return grads_W, grads_b
 
     def _compute_cost(self, X: np.ndarray, Y: np.ndarray, Ws: List[np.ndarray], bs: List[np.ndarray]):
-        P = self._evaluate_classifier(X, Ws, bs)
+        P = self._evaluate_classifier(X, Ws, bs)[-1]
         fact = 1/X.shape[1]
         if self.mbce:
             lcross_sum = np.sum(
                 (-1/N_CLASSES)*np.diag((np.ones_like(Y) - Y).T @ np.log(1 - P) + Y.T @ np.log(P)))
         else:
             lcross_sum = np.sum(np.diag(-Y.T@np.log(P)))
-        return fact*lcross_sum + self.lamda*np.sum(np.ravel(np.array(Ws)**2))
+        reg_sum = 0
+        for W in Ws:
+            reg_sum += np.sum(np.ravel(W**2))
+        return fact*lcross_sum + self.lamda*reg_sum
 
     def mini_batch_gd(self, gd_params, grid_search=False):
-        Ws_train, bs_train = np.copy(self.Ws), np.copy(self.bs)
+        Ws_train, bs_train = copy.deepcopy(self.Ws), copy.deepcopy(self.bs)
         train_costs = [self._compute_cost(
             self.X_train, self.Y_train, Ws_train, bs_train)]
         val_costs = [self._compute_cost(
@@ -108,13 +113,13 @@ class Model(ABC):
                 end = j*n_batch
                 perm = np.random.permutation(n)
                 X_batch = self.X_train[:, perm][:, start:end]
-                Y_batch = self.Y[:, perm][:, start:end]
+                Y_batch = self.Y_train[:, perm][:, start:end]
                 grads = self._compute_gradients(
                     X_batch, Y_batch, Ws_train, bs_train)
                 for idx, W_grad in enumerate(grads[0]):
-                    Ws_train[idx] -= eta*W_grad
+                    Ws_train[idx] -= eta*W_grad[0]
                 for idx, b_grad in enumerate(grads[1]):
-                    bs_train[idx] -= eta*b_grad
+                    bs_train[idx] -= eta*b_grad[0]
             current_train_loss = self._compute_cost(
                 self.X_train, self.Y_train, Ws_train, bs_train)
             print(f"\t * Train loss: {current_train_loss}")
@@ -124,34 +129,38 @@ class Model(ABC):
                     self.X_val, self.Y_val, Ws_train, bs_train)
                 print(f"\t * Validation loss: {current_val_loss}")
                 val_costs.append(current_val_loss)
-                if self.adaptive and (i+1) % 10 == 0:
+                if self.step_decay and (i+1) % 10 == 0:
                     eta /= 10
         if not grid_search:
             self.Ws_trained = Ws_train
             self.bs_trained = bs_train
         return Ws_train, bs_train, train_costs, val_costs
 
-    def validate_gradient(self, X, Y, Ws, bs, lamda=0.0, h=1e-6, eps=1e-10):
-        ga_W = self.compute_gradients(X, Y, Ws, bs, 0.0)[0]
-        gn_W = self.compute_grads_num_slow(X, Y, Ws, bs, 0.0, h)[0]
-        rel_err_W = np.zeros_like(ga_W)
+    def validate_gradient(self, X, Y, h=1e-6, eps=1e-10):
+        n_features = X.shape[0]
+        reduced_Ws = []
+        for W in self.Ws:
+            reduced_Ws.append(W[:, :n_features])
+        ga_W = self._compute_gradients(X, Y, reduced_Ws, self.bs)[0]
+        gn_W = self.compute_grads_num_slow(X, Y, reduced_Ws, self.bs, h)[0]
+        rel_err_W = np.zeros((len(ga_W), ga_W[0].shape[0], ga_W[0].shape[1]))
         for k in range(2):
             for i in range(ga_W[k].shape[0]):
                 for j in range(ga_W[k].shape[1]):
-                    rel_err_W[i, j] = (np.abs(ga_W[k][i, j] - gn_W[k][i, j])) / \
+                    rel_err_W[k, i, j] = (np.abs(ga_W[k][i, j] - gn_W[k][i, j])) / \
                         (max(eps, np.abs(ga_W[k][i, j]) +
                          np.abs(gn_W[k][i, j])))
-        ga_b = self.compute_gradients(X, Y, Ws, bs, 0.0)[1]
-        gn_b = self.compute_grads_num_slow(X, Y, Ws, bs, 0.0, h)[1]
-        rel_err_b = np.zeros_like(ga_b)
+        ga_b = self._compute_gradients(X, Y, reduced_Ws, self.bs)[1]
+        gn_b = self.compute_grads_num_slow(X, Y, reduced_Ws, self.bs, h)[1]
+        rel_err_b = np.zeros((len(ga_b), ga_b[0].shape[0]))
         for k in range(2):
-            for i in range(ga_b.shape[0]):
-                rel_err_b[i] = (np.abs(ga_b[k][i] - gn_b[k][i])) / \
+            for i in range(ga_b[k].shape[0]):
+                rel_err_b[k, i] = (np.abs(ga_b[k][i] - gn_b[k][i])) / \
                     (max(eps, np.abs(ga_b[k][i]) + np.abs(gn_b[k][i])))
         return max(np.max(rel_err_W), np.max(rel_err_b))
 
     def compute_accuracy(self, X, y, Ws, bs):
-        P = self._evaluate_classifier(X, Ws, bs)
+        P = self._evaluate_classifier(X, Ws, bs)[-1]
         y_pred = np.argmax(P, axis=0)
         correct = y_pred[y == y_pred].shape[0]
         return correct / y_pred.shape[0]
@@ -186,8 +195,14 @@ class Model(ABC):
             json.dump(grid_res[1], f)
         print(f"Best accuracy: {grid_res[1][-1][grid_res[0]]}")
 
-    def run_training(self, gd_params, savepath):
-        _, _, train_costs, val_costs = self.mini_batch_gd(gd_params)
+    def run_training(self, gd_params, savepath, test_data = None):
+        Ws_train, bs_train, train_costs, val_costs = self.mini_batch_gd(gd_params)
+
+        if test_data:
+            (X_test, y_test) = test_data
+            accuracy = self.compute_accuracy(X_test, y_test, Ws_train, bs_train)
+            print(f"Accuracy on test data: {accuracy}")
+
         plt.plot(np.arange(0, gd_params["n_epochs"] + 1),
                  train_costs, label="training loss")
         plt.plot(np.arange(0, gd_params["n_epochs"] + 1),
@@ -219,7 +234,7 @@ class OneLayerClassifier(Model):
             P = sigmoid(s)
         else:
             P = softmax(s)
-        return P
+        return [P]
 
     def _compute_gradients(self, X_batch, Y_batch, Ws, bs):
         if self.mbce:
@@ -266,7 +281,7 @@ class TwoLayerClassifier(Model):
             P = sigmoid(s)
         else:
             P = softmax(s)
-        return H, P
+        return [H, P]
 
     def _compute_gradients(self, X_batch, Y_batch, Ws, bs):
         nb = X_batch.shape[1]
