@@ -30,7 +30,7 @@ def main(seed):
         lambdas.append(10**l)
 
     for lamda in lambdas:
-        savepath = Path(f"./reports/figures/lgd/tc_2:{gd_params['n_batch']}:{gd_params['n_epochs']}:cyclical:{lamda}.png")
+        savepath = Path(f"./reports/figures/lgd/tc_2-{gd_params['n_batch']}-{gd_params['n_epochs']}-cyclical-{lamda}.png")
         model = TwoLayerClassifier(X_train, Y_train, gd_params, lamda=lamda, cyclical_lr = True, validation=(X_val, Y_val, y_val), seed=seed)
         model.run_training(gd_params, savepath, test_data=(X_test, y_test))
 

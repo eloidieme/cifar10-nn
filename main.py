@@ -35,7 +35,7 @@ def main(seed):
 
     logger.info("Data loaded for training.")
 
-    savepath = Path(f"./reports/figures/tc_{args.n_layers}:{gd_params['n_batch']}:{gd_params['n_epochs']}:{gd_params['eta']}:{lamda}.png")
+    savepath = Path(f"./reports/figures/tc_{args.n_layers}:{gd_params['n_batch']}-{gd_params['n_epochs']}-{gd_params['eta']}-{lamda}.png")
 
     if args.n_layers == 1:
         model = OneLayerClassifier(X_train, Y_train, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
