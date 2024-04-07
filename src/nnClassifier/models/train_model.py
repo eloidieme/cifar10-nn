@@ -17,14 +17,13 @@ def softmax(x):
     """ Standard definition of the softmax function """
     return np.exp(x) / np.sum(np.exp(x), axis=0)
 
-
 def sigmoid(x):
     """ Standard definition of the sigmoid function """
     return np.exp(x) / (np.exp(x) + 1)
 
 
 class Model(ABC):
-    def __init__(self, X_train, Y_train, gd_params, lamda=0.0, validation=None, step_decay=False, mbce=False, seed=None) -> None:
+    def __init__(self, X_train, Y_train, gd_params, lamda=0.0, validation=None, cyclical_lr = False, step_decay=False, mbce=False, seed=None) -> None:
         if seed:
             np.random.seed(seed)
         self.X_train = X_train
@@ -38,6 +37,7 @@ class Model(ABC):
             self.y_val = validation[2]
         self.step_decay = step_decay
         self.mbce = mbce
+        self.cyclical_lr = cyclical_lr
 
     @abstractmethod
     def _init_params(self, means: List[float], stds: List[float]):
@@ -51,8 +51,13 @@ class Model(ABC):
     def _compute_gradients(self, X_batch: np.ndarray, Y_batch: np.ndarray, Ws: List[np.ndarray], bs: List[np.ndarray]):
         pass
 
-    def get_current_learning_rate():
-        pass
+    def get_current_learning_rate(self, t, eta_min=1e-5, eta_max=1e-1, n_s=800):
+        n_s = 2*np.floor(self.X_train.shape[1]/self.gd_params['n_batch'])
+        cycle = np.floor(1 + t / (2 * n_s))
+        x = np.abs(t / n_s - 2 * cycle + 1)
+        eta_t = eta_min + (eta_max - eta_min) * np.maximum(0, (1 - x))
+
+        return eta_t
 
     def compute_grads_num_slow(self, X, Y, Ws, bs, h=1e-6):
         grads_W = [np.zeros(W.shape) for W in Ws]
@@ -108,6 +113,9 @@ class Model(ABC):
         val_costs = [self._compute_cost(
             self.X_val, self.Y_val, Ws_train, bs_train)] if self.validation else None
         n_batch, n_epochs, eta = gd_params["n_batch"], gd_params["n_epochs"], gd_params["eta"]
+        if self.cyclical_lr:
+            t = 0
+            eta = self.get_current_learning_rate(t)
         n = self.X_train.shape[1]
         for i in range(n_epochs):
             print(f"Epoch {i+1}/{n_epochs}")
@@ -120,9 +128,13 @@ class Model(ABC):
                 grads = self._compute_gradients(
                     X_batch, Y_batch, Ws_train, bs_train)
                 for idx, W_grad in enumerate(grads[0]):
-                    Ws_train[idx] -= eta*W_grad[0]
+                    Ws_train[idx] -= eta*W_grad
                 for idx, b_grad in enumerate(grads[1]):
-                    bs_train[idx] -= eta*b_grad[0]
+                    bs_train[idx] -= eta*b_grad
+                if self.cyclical_lr:
+                    t += 1
+                    eta = self.get_current_learning_rate(t)
+            print(f"\t * Learning rate: {eta}")
             current_train_loss = self._compute_cost(
                 self.X_train, self.Y_train, Ws_train, bs_train)
             print(f"\t * Train loss: {current_train_loss}")
@@ -217,8 +229,12 @@ class Model(ABC):
         plt.xlabel("epoch")
         plt.ylabel("loss")
         plt.legend()
+        if self.cyclical_lr:
+            eta = "Cyclical"
+        else:
+            eta = gd_params["eta"]
         plt.title(
-            f"Training curves (n_batch = {gd_params['n_batch']}, n_epochs = {gd_params['n_epochs']}, eta = {gd_params['eta']}, lambda = {self.lamda})")
+            f"Training curves (n_batch = {gd_params['n_batch']}, n_epochs = {gd_params['n_epochs']}, eta = {eta}, lambda = {self.lamda})")
         plt.grid()
         plt.xlim(0, gd_params["n_epochs"])
         plt.savefig(savepath, bbox_inches='tight')
@@ -226,9 +242,9 @@ class Model(ABC):
 
 
 class OneLayerClassifier(Model):
-    def __init__(self, X_train, Y_train, gd_params, lamda=0, validation=None, step_decay=False, mbce=False, seed=None) -> None:
+    def __init__(self, X_train, Y_train, gd_params, lamda=0, validation=None, cyclical_lr = False, step_decay=False, mbce=False, seed=None) -> None:
         super().__init__(X_train, Y_train, gd_params,
-                         lamda, validation, step_decay, mbce, seed)
+                         lamda, validation, cyclical_lr, step_decay, mbce, seed)
         self.Ws, self.bs = self._init_params()
 
     def _init_params(self, means=[0.0], stds=[0.01]):
@@ -257,7 +273,7 @@ class OneLayerClassifier(Model):
         else:
             nb = X_batch.shape[1]
             fact = 1/nb
-            P = self._evaluate_classifier(X_batch, Ws, bs)
+            P = self._evaluate_classifier(X_batch, Ws, bs)[0]
             G = -(Y_batch - P)
 
             grad_W = fact*(G@X_batch.T)
@@ -269,9 +285,9 @@ class OneLayerClassifier(Model):
 
 
 class TwoLayerClassifier(Model):
-    def __init__(self, X_train, Y_train, gd_params, lamda=0, validation=None, step_decay=False, mbce=False, seed=None) -> None:
+    def __init__(self, X_train, Y_train, gd_params, lamda=0, validation=None, cyclical_lr = False, step_decay=False, mbce=False, seed=None) -> None:
         super().__init__(X_train, Y_train, gd_params,
-                         lamda, validation, step_decay, mbce, seed)
+                         lamda, validation, cyclical_lr, step_decay, mbce, seed)
         self.Ws, self.bs = self._init_params()
 
     def _init_params(self, means=[0.0, 0.0], stds=[1/np.sqrt(N_FEATURES), 1/np.sqrt(N_HIDDEN_NODES)]):

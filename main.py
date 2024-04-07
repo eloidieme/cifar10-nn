@@ -26,6 +26,7 @@ def main(seed):
     parser.add_argument('-ne', '--n-epochs', dest='n_epochs', type=int, default=40, help='Specify number of epochs.')
     parser.add_argument('-e', '--eta', dest='eta', type=float, default=0.001, help='Specify value of learning rate eta.')
     parser.add_argument('-l', '--lambda', dest='lamda', type=float, default=0.0, help='Specify value of regularization factor lambda.')
+    parser.add_argument('-clr', '--cyclical', dest='cyclical_lr', action='store_true', help='Run training with cyclical learning rate.')
     
     args = parser.parse_args()
 
@@ -37,9 +38,9 @@ def main(seed):
     savepath = Path(f"./reports/figures/tc_{args.n_layers}:{gd_params['n_batch']}:{gd_params['n_epochs']}:{gd_params['eta']}:{lamda}.png")
 
     if args.n_layers == 1:
-        model = OneLayerClassifier(X_train, Y_train, gd_params, lamda=lamda, validation=(X_val, Y_val, y_val), seed=seed)
+        model = OneLayerClassifier(X_train, Y_train, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
     elif args.n_layers == 2:
-        model = TwoLayerClassifier(X_train, Y_train, gd_params, lamda=lamda, validation=(X_val, Y_val, y_val), seed=seed)
+        model = TwoLayerClassifier(X_train, Y_train, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
     logger.info("Model created.")
 
     logger.info("Start of main process.")
@@ -47,4 +48,4 @@ def main(seed):
     logger.info("End of main process.")
 
 if __name__ == '__main__':
-    main(400)
+    main(42)

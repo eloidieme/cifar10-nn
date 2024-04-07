@@ -1,0 +1,6 @@
+Epoch 1/40
+	 * Learning rate: 0.05000500000000001
+	 * Train loss: 1.775412433118236
+	 * Validation loss: 1.8510130416600683
+Epoch 2/40
+	 * Learning rate: 0.1

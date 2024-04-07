@@ -30,10 +30,13 @@ data: requirements
 	$(PYTHON_INTERPRETER) src/data/make_dataset.py
 
 one_layer:
-	$(PYTHON_INTERPRETER) main.py -nl 1 -nb 100 -ne 40 -e 0.001 -l 0.1 > ./reports/logs/latest_one_layer.txt
+	$(PYTHON_INTERPRETER) main.py -nl 1 -nb 100 -ne 10 -e 0.001 -l 0.1 -clr > ./reports/logs/latest_one_layer.txt
 
 two_layers:
-	$(PYTHON_INTERPRETER) main.py -nl 2 -nb 100 -ne 40 -e 0.001 -l 0.0 > ./reports/logs/latest_two_layers.txt
+	$(PYTHON_INTERPRETER) main.py -nl 2 -nb 100 -ne 46 -e 0.001 -l 0.01 -clr > ./reports/logs/three_cycles_two_layers.txt
+
+lambda_gd:
+	$(PYTHON_INTERPRETER) main_l.py > ./reports/logs/lambda_gd.txt
 
 ## Delete all compiled Python files
 clean:

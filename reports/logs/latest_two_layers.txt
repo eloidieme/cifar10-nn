@@ -1,0 +1,41 @@
+Epoch 1/10
+	 * Learning rate: 0.020007999999999998
+	 * Train loss: 2.4139463724269894
+	 * Validation loss: 2.485056563597578
+Epoch 2/10
+	 * Learning rate: 0.040006
+	 * Train loss: 2.1590425681416323
+	 * Validation loss: 2.3118256929118215
+Epoch 3/10
+	 * Learning rate: 0.060004000000000016
+	 * Train loss: 2.033473493430391
+	 * Validation loss: 2.238461585776173
+Epoch 4/10
+	 * Learning rate: 0.080002
+	 * Train loss: 1.9058136458390451
+	 * Validation loss: 2.136908172226282
+Epoch 5/10
+	 * Learning rate: 0.1
+	 * Train loss: 1.8155361165460615
+	 * Validation loss: 2.0641440404694955
+Epoch 6/10
+	 * Learning rate: 0.080002
+	 * Train loss: 1.7290830446804526
+	 * Validation loss: 2.006949822363154
+Epoch 7/10
+	 * Learning rate: 0.060004000000000016
+	 * Train loss: 1.6521561273037224
+	 * Validation loss: 1.968091105426719
+Epoch 8/10
+	 * Learning rate: 0.040006
+	 * Train loss: 1.5493516153994733
+	 * Validation loss: 1.8927177538371587
+Epoch 9/10
+	 * Learning rate: 0.020007999999999998
+	 * Train loss: 1.490731168833521
+	 * Validation loss: 1.8511005794970892
+Epoch 10/10
+	 * Learning rate: 1e-05
+	 * Train loss: 1.464664984694033
+	 * Validation loss: 1.8428436159162997
+Accuracy on test data: 0.4596
