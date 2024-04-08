@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 import argparse
+from time import time
 
 import numpy as np
 
@@ -36,16 +37,18 @@ def main(seed):
 
     logger.info("Data loaded for training.")
 
-    savepath = Path(f"./reports/figures/tc_{args.n_layers}-{gd_params['n_batch']}-{gd_params['n_epochs']}-{gd_params['eta']}-{lamda}.png")
+    figure_savepath = Path(f"./reports/figures/tc_{args.n_layers}-{gd_params['n_batch']}-{gd_params['n_epochs']}-{gd_params['eta']}-{lamda}.png")
 
     if args.n_layers == 1:
+        model_savepath = f'./models/oneLayerNN_{time()}'
         model = OneLayerClassifier(X_train, Y_train, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
     elif args.n_layers == 2:
+        model_savepath = f'./models/twoLayersNN_{time()}'
         model = TwoLayerClassifier(X_train, Y_train, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
     logger.info("Model created.")
 
     logger.info("Start of main process.")
-    model.run_training(gd_params, savepath, test_data=(X_test, y_test))
+    model.run_training(gd_params, figure_savepath=figure_savepath, test_data=(X_test, y_test), model_savepath=model_savepath)
     logger.info("End of main process.")
 
 if __name__ == '__main__':

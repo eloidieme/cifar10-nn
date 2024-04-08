@@ -212,14 +212,15 @@ class Model(ABC):
             json.dump(grid_res[1], f)
         print(f"Best accuracy: {grid_res[1][-1][grid_res[0]]}")
 
-    def run_training(self, gd_params, savepath, test_data = None):
+    def run_training(self, gd_params, figure_savepath = None, test_data = None, model_savepath = None):
         Ws_train, bs_train, train_costs, val_costs = self.mini_batch_gd(gd_params)
         logger.info("Training completed.")
 
-        for idx, W in enumerate(Ws_train):
-            np.save(f"W_{idx}", W)
-        for idx, b in enumerate(bs_train):
-            np.save(f"b_{idx}", b)
+        if model_savepath:
+            for idx, W in enumerate(Ws_train):
+                np.save(f"{model_savepath}/Ws/W_{idx}", W)
+            for idx, b in enumerate(bs_train):
+                np.save(f"{model_savepath}/bs/b_{idx}", b)
 
         if test_data:
             (X_test, y_test) = test_data
@@ -242,7 +243,8 @@ class Model(ABC):
             f"Training curves (n_batch = {gd_params['n_batch']}, n_epochs = {gd_params['n_epochs']}, eta = {eta}, lambda = {self.lamda})")
         plt.grid()
         plt.xlim(0, gd_params["n_epochs"])
-        plt.savefig(savepath, bbox_inches='tight')
+        if figure_savepath:
+            plt.savefig(figure_savepath, bbox_inches='tight')
         plt.clf()
         logger.info("Figure saved.")
 
