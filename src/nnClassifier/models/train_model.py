@@ -51,8 +51,8 @@ class Model(ABC):
     def _compute_gradients(self, X_batch: np.ndarray, Y_batch: np.ndarray, Ws: List[np.ndarray], bs: List[np.ndarray]):
         pass
 
-    def get_current_learning_rate(self, t, eta_min=1e-5, eta_max=1e-1, n_s=800):
-        n_s = 2*np.floor(self.X_train.shape[1]/self.gd_params['n_batch'])
+    def get_current_learning_rate(self, t, eta_min=1e-5, eta_max=1e-1, n_s=1200):
+        #n_s = 2*np.floor(self.X_train.shape[1]/self.gd_params['n_batch'])
         cycle = np.floor(1 + t / (2 * n_s))
         x = np.abs(t / n_s - 2 * cycle + 1)
         eta_t = eta_min + (eta_max - eta_min) * np.maximum(0, (1 - x))
@@ -216,6 +216,11 @@ class Model(ABC):
         Ws_train, bs_train, train_costs, val_costs = self.mini_batch_gd(gd_params)
         logger.info("Training completed.")
 
+        for idx, W in enumerate(Ws_train):
+            np.save(f"W_{idx}", W)
+        for idx, b in enumerate(bs_train):
+            np.save(f"b_{idx}", b)
+
         if test_data:
             (X_test, y_test) = test_data
             accuracy = self.compute_accuracy(X_test, y_test, Ws_train, bs_train)
@@ -238,6 +243,7 @@ class Model(ABC):
         plt.grid()
         plt.xlim(0, gd_params["n_epochs"])
         plt.savefig(savepath, bbox_inches='tight')
+        plt.clf()
         logger.info("Figure saved.")
 
 

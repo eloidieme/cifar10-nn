@@ -6,7 +6,7 @@ import numpy as np
 
 from nnClassifier import logger
 
-from nnClassifier.data.make_dataset import make_splits
+from nnClassifier.data.make_dataset import make_splits, make_splits_full
 from nnClassifier.features.build_features import normalize_splits
 from nnClassifier.models.train_model import OneLayerClassifier, TwoLayerClassifier
 from nnClassifier.models.predict import predict
@@ -14,7 +14,8 @@ from nnClassifier.models.predict import predict
 def main(seed):
     np.random.seed(seed)
 
-    splits_norm = normalize_splits(make_splits("data_batch_1", "data_batch_2", "test_batch"))
+    #splits_norm = normalize_splits(make_splits("data_batch_1", "data_batch_2", "test_batch"))
+    splits_norm = normalize_splits(make_splits_full("test_batch", 1000))
     X_train, Y_train, _ = splits_norm["train"]
     X_val, Y_val, y_val = splits_norm["validation"]
     X_test, _, y_test = splits_norm["test"]
@@ -35,7 +36,7 @@ def main(seed):
 
     logger.info("Data loaded for training.")
 
-    savepath = Path(f"./reports/figures/tc_{args.n_layers}:{gd_params['n_batch']}-{gd_params['n_epochs']}-{gd_params['eta']}-{lamda}.png")
+    savepath = Path(f"./reports/figures/tc_{args.n_layers}-{gd_params['n_batch']}-{gd_params['n_epochs']}-{gd_params['eta']}-{lamda}.png")
 
     if args.n_layers == 1:
         model = OneLayerClassifier(X_train, Y_train, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
@@ -48,4 +49,4 @@ def main(seed):
     logger.info("End of main process.")
 
 if __name__ == '__main__':
-    main(42)
+    main(400)

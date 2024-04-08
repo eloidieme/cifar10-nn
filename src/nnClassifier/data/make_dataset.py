@@ -88,3 +88,6 @@ def make_splits_full(test_data, val_size = 1000):
     splits["test"] = load_data(test_data)
     logger.info("Split of train, validation and test data using full data successfull.")
     return splits
+
+if __name__ == '__main__':
+    get_raw_data()
