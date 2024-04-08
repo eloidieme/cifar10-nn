@@ -15,8 +15,8 @@ from nnClassifier.models.predict import predict
 def main(seed):
     np.random.seed(seed)
 
-    #splits_norm = normalize_splits(make_splits("data_batch_1", "data_batch_2", "test_batch"))
-    splits_norm = normalize_splits(make_splits_full("test_batch", 1000))
+    splits_norm = normalize_splits(make_splits("data_batch_1", "data_batch_2", "test_batch"))
+    #splits_norm = normalize_splits(make_splits_full("test_batch", 1000))
     X_train, Y_train, _ = splits_norm["train"]
     X_val, Y_val, y_val = splits_norm["validation"]
     X_test, _, y_test = splits_norm["test"]

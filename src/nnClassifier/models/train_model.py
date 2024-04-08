@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import tqdm
 import json
 import copy
+import os
 from abc import ABC, abstractmethod
 from typing import List
 
@@ -51,7 +52,7 @@ class Model(ABC):
     def _compute_gradients(self, X_batch: np.ndarray, Y_batch: np.ndarray, Ws: List[np.ndarray], bs: List[np.ndarray]):
         pass
 
-    def get_current_learning_rate(self, t, eta_min=1e-5, eta_max=1e-1, n_s=1200):
+    def get_current_learning_rate(self, t, eta_min=1e-5, eta_max=1e-1, n_s=800):
         #n_s = 2*np.floor(self.X_train.shape[1]/self.gd_params['n_batch'])
         cycle = np.floor(1 + t / (2 * n_s))
         x = np.abs(t / n_s - 2 * cycle + 1)
@@ -217,6 +218,8 @@ class Model(ABC):
         logger.info("Training completed.")
 
         if model_savepath:
+            os.makedirs(f"{model_savepath}/Ws", exist_ok=True)
+            os.makedirs(f"{model_savepath}/bs", exist_ok=True)
             for idx, W in enumerate(Ws_train):
                 np.save(f"{model_savepath}/Ws/W_{idx}", W)
             for idx, b in enumerate(bs_train):
