@@ -52,13 +52,13 @@ def get_raw_data():
 def load_data(filename):
     with open('data/cifar-10-batches-py/'+filename, 'rb') as fo:
         data = pickle.load(fo, encoding='bytes')
-    X, y = np.array(data[b'data']).T, np.array(data[b'labels']).T
+    X, y = np.array(data[b'data']).T, np.array(data[b'labels'], dtype=np.int8).T
     Y = []
     for label in data[b'labels']:
         one_hot = np.zeros(10)
         one_hot[label] = 1
         Y.append(one_hot)
-    Y = np.array(Y).T
+    Y = np.array(Y, dtype=np.int8).T
     logger.info("Data from %s correctly loaded.", filename)
     return X, Y, y
 
@@ -89,5 +89,29 @@ def make_splits_full(test_data, val_size = 1000):
     logger.info("Split of train, validation and test data using full data successfull.")
     return splits
 
+def save_splits_full(test_data, val_size=1000):
+    for i in range(5):
+        data = load_data(f"data_batch_{i+1}")
+        if i == 0:
+            X, Y, y = data
+        else:
+            X, Y, y = np.concatenate((X, data[0]), axis=1), np.concatenate((Y, data[1]), axis=1), np.concatenate((y, data[2])), 
+    n = X.shape[1]
+    perm = np.random.permutation(n)
+    tests = load_data(test_data)
+    np.savez_compressed(
+        "data/full_data", 
+        X_train=X[:, perm][:, val_size:], 
+        X_val=X[:, perm][:, :val_size],
+        Y_train=Y[:, perm][:, val_size:],
+        Y_val=Y[:, perm][:, :val_size],
+        y_train=y[perm][val_size:],
+        y_val=y[perm][:val_size],
+        X_test=tests[0],
+        Y_test=tests[1],
+        y_test=tests[2]
+    )
+
 if __name__ == '__main__':
-    get_raw_data()
+    #get_raw_data()
+    save_splits_full("test_batch")

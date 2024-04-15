@@ -15,8 +15,9 @@ N_HIDDEN_NODES = 50
 
 
 def softmax(x):
-    """ Standard definition of the softmax function """
-    return np.exp(x) / np.sum(np.exp(x), axis=0)
+    x = x - np.max(x, axis=0)  # for numerical stability
+    exp_x = np.exp(x)
+    return exp_x / np.sum(exp_x, axis=0)
 
 def sigmoid(x):
     """ Standard definition of the sigmoid function """
@@ -101,7 +102,8 @@ class Model(ABC):
             lcross_sum = np.sum(
                 (-1/N_CLASSES)*np.diag((np.ones_like(Y) - Y).T @ np.log(1 - P) + Y.T @ np.log(P)))
         else:
-            lcross_sum = np.sum(np.diag(-Y.T@np.log(P)))
+            log_probs = np.log(P)
+            lcross_sum = -np.sum(Y * log_probs)
         reg_sum = 0
         for W in Ws:
             reg_sum += np.sum(np.ravel(W**2))
