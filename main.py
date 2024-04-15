@@ -8,18 +8,20 @@ import numpy as np
 from nnClassifier import logger
 
 from nnClassifier.data.make_dataset import make_splits, make_splits_full
-from nnClassifier.features.build_features import normalize_splits
+from nnClassifier.features.build_features import normalize_splits, augment_data
 from nnClassifier.models.train_model import OneLayerClassifier, TwoLayerClassifier
 from nnClassifier.models.predict import predict
 
 def main(seed):
     np.random.seed(seed)
 
-    splits_norm = normalize_splits(make_splits("data_batch_1", "data_batch_2", "test_batch"))
-    #splits_norm = normalize_splits(make_splits_full("test_batch", 1000))
-    X_train, Y_train, _ = splits_norm["train"]
+    #splits_norm = normalize_splits(make_splits("data_batch_1", "data_batch_2", "test_batch"))
+    splits_norm = normalize_splits(make_splits_full("test_batch", 1000))
+    X_train, Y_train, y_train = splits_norm["train"]
     X_val, Y_val, y_val = splits_norm["validation"]
-    X_test, _, y_test = splits_norm["test"]
+    X_test, Y_test, y_test = splits_norm["test"]
+
+    X_aug, Y_aug, y_aug = augment_data(X_train, Y_train, y_train)
 
     parser = argparse.ArgumentParser(description='Argument parser for training.')
 
@@ -41,10 +43,10 @@ def main(seed):
 
     if args.n_layers == 1:
         model_savepath = f'./models/oneLayerNN_{time()}'
-        model = OneLayerClassifier(X_train, Y_train, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
+        model = OneLayerClassifier(X_aug, Y_aug, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
     elif args.n_layers == 2:
         model_savepath = f'./models/twoLayersNN_{time()}'
-        model = TwoLayerClassifier(X_train, Y_train, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
+        model = TwoLayerClassifier(X_aug, Y_aug, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
     logger.info("Model created.")
 
     logger.info("Start of main process.")
