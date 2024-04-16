@@ -16,3 +16,4 @@ seaborn
 torch
 torchvision
 torchaudio
+opencv-python
