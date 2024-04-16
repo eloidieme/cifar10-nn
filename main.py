@@ -16,18 +16,12 @@ from nnClassifier.models.predict import predict
 def main(seed):
     np.random.seed(seed)
 
-    #splits_norm = normalize_splits(make_splits("data_batch_1", "data_batch_2", "test_batch"))
     splits_norm = normalize_splits(make_splits_full("test_batch", 1000))
     X_train, Y_train, y_train = splits_norm["train"]
     X_val, Y_val, y_val = splits_norm["validation"]
     X_test, Y_test, y_test = splits_norm["test"]
-
-    X_aug, Y_aug, y_aug = augment_data(X_train, Y_train, y_train)
-
-    """ fd = np.load('./data/full_data_augmented.npz', 'r+')
-    X_aug, Y_aug, y_aug = fd["X_train"], fd["Y_train"], fd["y_train"]
-    X_val, Y_val, y_val = fd["X_val"], fd["Y_val"], fd["y_val"]
-    X_test, Y_test, y_test = fd["X_test"], fd["Y_test"], fd["y_test"] """
+    X_aug, Y_aug, y_aug = augment_data(X_train, Y_train, y_train) 
+    print(X_aug.shape[1])
 
     parser = argparse.ArgumentParser(description='Argument parser for training.')
 

@@ -6,6 +6,9 @@ import copy
 import os
 from abc import ABC, abstractmethod
 from typing import List
+import torch
+from torch.utils.data import TensorDataset, DataLoader
+import torch.nn.functional as F
 
 from nnClassifier import logger
 
@@ -120,13 +123,15 @@ class Model(ABC):
             t = 0
             eta = self.get_current_learning_rate(t)
         n = self.X_train.shape[1]
-        perm = np.random.permutation(n)
-        mini_batches = [(self.X_train[:, perm][:, (j-1)*n_batch:j*n_batch], self.Y_train[:, perm][:, (j-1)*n_batch:j*n_batch]) for j in range(1, int(n/n_batch) + 1)]
+        tensor_x = torch.Tensor(self.X_train.T) 
+        tensor_y = torch.Tensor(self.Y_train.T)
+        dataset = TensorDataset(tensor_x, tensor_y)
+        dataloader = DataLoader(dataset, batch_size=n_batch, shuffle=True)
         for i in range(n_epochs):
             print(f"Epoch {i+1}/{n_epochs}")
-            for j in tqdm.tqdm(range(1, int(n/n_batch) + 1)):
+            for X_batch, Y_batch in tqdm.tqdm(dataloader, desc="Processing batches"):
                 grads = self._compute_gradients(
-                    mini_batches[j][0], mini_batches[j][1], Ws_train, bs_train)
+                    X_batch.numpy().T, Y_batch.numpy().T, Ws_train, bs_train)
                 for idx, W_grad in enumerate(grads[0]):
                     Ws_train[idx] -= eta*W_grad
                 for idx, b_grad in enumerate(grads[1]):
@@ -308,31 +313,44 @@ class TwoLayerClassifier(Model):
         return [W1, W2], [b1, b2]
 
     def _evaluate_classifier(self, X, Ws, bs):
-        s1 = Ws[0]@X + bs[0]
-        H = np.maximum(np.zeros_like(s1), s1)
-        s = Ws[1]@H + bs[1]
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        X = torch.tensor(X, dtype=torch.float32).to(device)  
+        Ws = [torch.tensor(w, dtype=torch.float32).to(device) for w in Ws]  
+        bs = [torch.tensor(b, dtype=torch.float32).to(device) for b in bs]  
+        s1 = torch.matmul(Ws[0], X) + bs[0]
+        H = F.relu(s1)
+        s = torch.matmul(Ws[1], H) + bs[1]
         if self.mbce:
-            P = sigmoid(s)
+            P = torch.sigmoid(s)
         else:
-            P = softmax(s)
-        return [H, P]
+            P = F.softmax(s, dim=0)
+
+        return [H.numpy(), P.numpy()]
 
     def _compute_gradients(self, X_batch, Y_batch, Ws, bs):
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        X_batch = torch.tensor(X_batch, dtype=torch.float32).to(device)
+        Y_batch = torch.tensor(Y_batch, dtype=torch.float32).to(device)
+        Ws = [torch.tensor(w, dtype=torch.float32).to(device) for w in Ws]  
+        bs = [torch.tensor(b, dtype=torch.float32).to(device) for b in bs]
+
         nb = X_batch.shape[1]
-        fact = 1/nb
+        fact = 1.0 / nb
         H, P = self._evaluate_classifier(X_batch, Ws, bs)
+        H = torch.tensor(H, dtype=torch.float32).to(device)
+        P = torch.tensor(P, dtype=torch.float32).to(device)
         G = -(Y_batch - P)
 
-        grad_W2 = fact*(G@H.T)
-        grad_b2 = fact*(G@np.ones((nb, 1)))
+        grad_W2 = fact * torch.matmul(G, H.T)
+        grad_b2 = fact * torch.matmul(G, torch.ones(nb, 1, device=device))
 
-        G = Ws[1].T@G
-        G = G * (H > 0)
+        G = torch.matmul(Ws[1].T, G)
+        G = G * (H > 0).float()
 
-        grad_W1 = fact*(G@X_batch.T)
-        grad_b1 = fact*(G@np.ones((nb, 1)))
+        grad_W1 = fact * torch.matmul(G, X_batch.T)
+        grad_b1 = fact * torch.matmul(G, torch.ones(nb, 1, device=device))
 
-        grad_W1 += 2*self.lamda*Ws[0]
-        grad_W2 += 2*self.lamda*Ws[1]
+        grad_W1 += 2 * self.lamda * Ws[0]
+        grad_W2 += 2 * self.lamda * Ws[1]
 
-        return [grad_W1, grad_W2], [grad_b1, grad_b2]
+        return [grad_W1.numpy(), grad_W2.numpy()], [grad_b1.numpy(), grad_b2.numpy()]
