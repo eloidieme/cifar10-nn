@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 import argparse
 from time import time
+import cProfile, pstats
 
 import numpy as np
 
@@ -15,7 +16,7 @@ from nnClassifier.models.predict import predict
 def main(seed):
     np.random.seed(seed)
 
-    splits_norm = normalize_splits(make_splits("data_batch_1", "data_batch_2", "test_batch"))
+    #splits_norm = normalize_splits(make_splits("data_batch_1", "data_batch_2", "test_batch"))
     splits_norm = normalize_splits(make_splits_full("test_batch", 1000))
     X_train, Y_train, y_train = splits_norm["train"]
     X_val, Y_val, y_val = splits_norm["validation"]
@@ -55,7 +56,12 @@ def main(seed):
     logger.info("Model created.")
 
     logger.info("Start of main process.")
+    profiler = cProfile.Profile()
+    profiler.enable()
     model.run_training(gd_params, figure_savepath=figure_savepath, test_data=(X_test, y_test), model_savepath=model_savepath)
+    profiler.disable()
+    stats = pstats.Stats(profiler).sort_stats('ncalls')
+    stats.print_stats()
     logger.info("End of main process.")
 
 if __name__ == '__main__':
