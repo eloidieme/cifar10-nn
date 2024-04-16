@@ -10,7 +10,7 @@ from nnClassifier import logger
 
 from nnClassifier.data.make_dataset import make_splits, make_splits_full
 from nnClassifier.features.build_features import normalize_splits, augment_data
-from nnClassifier.models.train_model import OneLayerClassifier, TwoLayerClassifier
+from nnClassifier.models.train import Model
 from nnClassifier.models.predict import predict
 
 def main(seed):
@@ -43,10 +43,10 @@ def main(seed):
 
     if args.n_layers == 1:
         model_savepath = f'./models/oneLayerNN_{time()}'
-        model = OneLayerClassifier(X_aug, Y_aug, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
+        # model = OneLayerClassifier(X_aug, Y_aug, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
     elif args.n_layers == 2:
         model_savepath = f'./models/twoLayersNN_{time()}'
-        model = TwoLayerClassifier(X_aug, Y_aug, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
+        model = Model(X_aug, Y_aug, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
     logger.info("Model created.")
 
     logger.info("Start of main process.")

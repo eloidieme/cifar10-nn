@@ -89,29 +89,5 @@ def make_splits_full(test_data, val_size = 1000):
     logger.info("Split of train, validation and test data using full data successfull.")
     return splits
 
-def save_splits_full(test_data, val_size=1000):
-    for i in range(5):
-        data = load_data(f"data_batch_{i+1}")
-        if i == 0:
-            X, Y, y = data
-        else:
-            X, Y, y = np.concatenate((X, data[0]), axis=1), np.concatenate((Y, data[1]), axis=1), np.concatenate((y, data[2])), 
-    n = X.shape[1]
-    perm = np.random.permutation(n)
-    tests = load_data(test_data)
-    np.savez_compressed(
-        "data/full_data", 
-        X_train=X[:, perm][:, val_size:], 
-        X_val=X[:, perm][:, :val_size],
-        Y_train=Y[:, perm][:, val_size:],
-        Y_val=Y[:, perm][:, :val_size],
-        y_train=y[perm][val_size:],
-        y_val=y[perm][:val_size],
-        X_test=tests[0],
-        Y_test=tests[1],
-        y_test=tests[2]
-    )
-
 if __name__ == '__main__':
-    #get_raw_data()
-    save_splits_full("test_batch")
+    get_raw_data()

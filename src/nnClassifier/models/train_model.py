@@ -57,11 +57,9 @@ class Model(ABC):
         pass
 
     def get_current_learning_rate(self, t, eta_min=1e-5, eta_max=1e-1, n_s=800):
-        #n_s = 2*np.floor(self.X_train.shape[1]/self.gd_params['n_batch'])
         cycle = np.floor(1 + t / (2 * n_s))
         x = np.abs(t / n_s - 2 * cycle + 1)
         eta_t = eta_min + (eta_max - eta_min) * np.maximum(0, (1 - x))
-
         return eta_t
 
     def compute_grads_num_slow(self, X, Y, Ws, bs, h=1e-6):
