@@ -14,7 +14,7 @@ from nnClassifier import logger
 
 N_CLASSES = 10
 N_FEATURES = 3072
-N_HIDDEN_NODES = 50
+N_HIDDEN_NODES = 250
 
 
 def softmax(x):
@@ -314,9 +314,10 @@ class TwoLayerClassifier(Model):
 
     def _evaluate_classifier(self, X, Ws, bs):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        X = torch.tensor(X, dtype=torch.float32).to(device)  
-        Ws = [torch.tensor(w, dtype=torch.float32).to(device) for w in Ws]  
-        bs = [torch.tensor(b, dtype=torch.float32).to(device) for b in bs]  
+        X = X if isinstance(X, torch.Tensor) else torch.tensor(X, dtype=torch.float32)
+        X = X.to(device)
+        Ws = [(w if isinstance(w, torch.Tensor) else torch.tensor(w, dtype=torch.float32)).to(device) for w in Ws]
+        bs = [(b if isinstance(b, torch.Tensor) else torch.tensor(b, dtype=torch.float32)).to(device) for b in bs]
         s1 = torch.matmul(Ws[0], X) + bs[0]
         H = F.relu(s1)
         s = torch.matmul(Ws[1], H) + bs[1]
@@ -329,10 +330,12 @@ class TwoLayerClassifier(Model):
 
     def _compute_gradients(self, X_batch, Y_batch, Ws, bs):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        X_batch = torch.tensor(X_batch, dtype=torch.float32).to(device)
-        Y_batch = torch.tensor(Y_batch, dtype=torch.float32).to(device)
-        Ws = [torch.tensor(w, dtype=torch.float32).to(device) for w in Ws]  
-        bs = [torch.tensor(b, dtype=torch.float32).to(device) for b in bs]
+        X_batch = X_batch if isinstance(X_batch, torch.Tensor) else torch.tensor(X_batch, dtype=torch.float32)
+        X_batch = X_batch.to(device)
+        Y_batch = Y_batch if isinstance(Y_batch, torch.Tensor) else torch.tensor(Y_batch, dtype=torch.float32)
+        Y_batch = Y_batch.to(device)
+        Ws = [(w if isinstance(w, torch.Tensor) else torch.tensor(w, dtype=torch.float32)).to(device) for w in Ws]
+        bs = [(b if isinstance(b, torch.Tensor) else torch.tensor(b, dtype=torch.float32)).to(device) for b in bs]
 
         nb = X_batch.shape[1]
         fact = 1.0 / nb

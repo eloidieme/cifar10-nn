@@ -50,12 +50,7 @@ def main(seed):
     logger.info("Model created.")
 
     logger.info("Start of main process.")
-    profiler = cProfile.Profile()
-    profiler.enable()
     model.run_training(gd_params, figure_savepath=figure_savepath, test_data=(X_test, y_test), model_savepath=model_savepath)
-    profiler.disable()
-    stats = pstats.Stats(profiler).sort_stats('tottime')
-    stats.print_stats()
     logger.info("End of main process.")
 
 if __name__ == '__main__':
