@@ -60,7 +60,7 @@ def main(seed):
     profiler.enable()
     model.run_training(gd_params, figure_savepath=figure_savepath, test_data=(X_test, y_test), model_savepath=model_savepath)
     profiler.disable()
-    stats = pstats.Stats(profiler).sort_stats('ncalls')
+    stats = pstats.Stats(profiler).sort_stats('tottime')
     stats.print_stats()
     logger.info("End of main process.")
 

@@ -120,16 +120,13 @@ class Model(ABC):
             t = 0
             eta = self.get_current_learning_rate(t)
         n = self.X_train.shape[1]
+        perm = np.random.permutation(n)
+        mini_batches = [(self.X_train[:, perm][:, (j-1)*n_batch:j*n_batch], self.Y_train[:, perm][:, (j-1)*n_batch:j*n_batch]) for j in range(1, int(n/n_batch) + 1)]
         for i in range(n_epochs):
             print(f"Epoch {i+1}/{n_epochs}")
             for j in tqdm.tqdm(range(1, int(n/n_batch) + 1)):
-                start = (j-1)*n_batch
-                end = j*n_batch
-                perm = np.random.permutation(n)
-                X_batch = self.X_train[:, perm][:, start:end]
-                Y_batch = self.Y_train[:, perm][:, start:end]
                 grads = self._compute_gradients(
-                    X_batch, Y_batch, Ws_train, bs_train)
+                    mini_batches[j][0], mini_batches[j][1], Ws_train, bs_train)
                 for idx, W_grad in enumerate(grads[0]):
                     Ws_train[idx] -= eta*W_grad
                 for idx, b_grad in enumerate(grads[1]):

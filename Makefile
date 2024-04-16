@@ -26,7 +26,7 @@ one_layer:
 	$(PYTHON_INTERPRETER) main.py -nl 1 -nb 100 -ne 10 -e 0.001 -l 0.1 -clr > ./reports/logs/latest_one_layer.txt
 
 two_layers:
-	$(PYTHON_INTERPRETER) main.py -nl 2 -nb 4320 -ne 36 -e 0.001 -l 0.000675 -clr > ./reports/logs/one_cycle_two_layers.txt
+	$(PYTHON_INTERPRETER) main.py -nl 2 -nb 270 -ne 2 -e 0.001 -l 0.000675 -clr > ./reports/logs/one_cycle_two_layers.txt
 
 lambda_gd:
 	$(PYTHON_INTERPRETER) main_l.py > ./reports/logs/lambda_gd.txt
