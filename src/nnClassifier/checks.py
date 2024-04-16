@@ -1,5 +1,5 @@
 import numpy as np
-
+from nnClassifier import logger
 
 def compute_grads_num_slow(self, X, Y, Ws, bs, h=1e-6):
         grads_W = [np.zeros(W.shape) for W in Ws]

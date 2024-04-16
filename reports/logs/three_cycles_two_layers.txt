@@ -1,98 +1,98 @@
 54076
 Epoch 1/24
 	 * Learning rate: 0.025132487499999998
-	 * Train loss: 1.8739584684371948
-	 * Validation loss: 1.9435999393463135
+	 * Train loss: 1.910269856452942
+	 * Validation loss: 1.965657114982605
 Epoch 2/24
 	 * Learning rate: 0.050254975
-	 * Train loss: 1.7580558061599731
-	 * Validation loss: 1.8594255447387695
+	 * Train loss: 1.8702681064605713
+	 * Validation loss: 1.934061050415039
 Epoch 3/24
 	 * Learning rate: 0.07537746250000002
-	 * Train loss: 1.7609941959381104
-	 * Validation loss: 1.8974511623382568
+	 * Train loss: 1.8022947311401367
+	 * Validation loss: 1.9677455425262451
 Epoch 4/24
 	 * Learning rate: 0.09950005000000002
-	 * Train loss: 2.245872735977173
-	 * Validation loss: 2.361769437789917
+	 * Train loss: 1.7713292837142944
+	 * Validation loss: 1.8842267990112305
 Epoch 5/24
 	 * Learning rate: 0.0743775625
-	 * Train loss: 1.5552730560302734
-	 * Validation loss: 1.7255122661590576
+	 * Train loss: 1.5848674774169922
+	 * Validation loss: 1.79367995262146
 Epoch 6/24
 	 * Learning rate: 0.049255075
-	 * Train loss: 1.4689847230911255
-	 * Validation loss: 1.6753090620040894
+	 * Train loss: 1.5002552270889282
+	 * Validation loss: 1.7446938753128052
 Epoch 7/24
 	 * Learning rate: 0.024132587499999997
-	 * Train loss: 1.335873007774353
-	 * Validation loss: 1.551527738571167
+	 * Train loss: 1.3510446548461914
+	 * Validation loss: 1.5856821537017822
 Epoch 8/24
 	 * Learning rate: 0.0010098999999999787
-	 * Train loss: 1.2979320287704468
-	 * Validation loss: 1.517050862312317
+	 * Train loss: 1.3101890087127686
+	 * Validation loss: 1.5577170848846436
 Epoch 9/24
 	 * Learning rate: 0.0261323875
-	 * Train loss: 1.312150478363037
-	 * Validation loss: 1.5218336582183838
+	 * Train loss: 1.3399258852005005
+	 * Validation loss: 1.5920403003692627
 Epoch 10/24
 	 * Learning rate: 0.051254875000000026
-	 * Train loss: 1.3674380779266357
-	 * Validation loss: 1.5881807804107666
+	 * Train loss: 1.4541370868682861
+	 * Validation loss: 1.734194278717041
 Epoch 11/24
 	 * Learning rate: 0.07637736249999999
-	 * Train loss: 1.6200255155563354
-	 * Validation loss: 1.9691665172576904
+	 * Train loss: 1.7315092086791992
+	 * Validation loss: 1.9727202653884888
 Epoch 12/24
 	 * Learning rate: 0.09850015
-	 * Train loss: 2.0813019275665283
-	 * Validation loss: 2.3123536109924316
+	 * Train loss: 1.5824978351593018
+	 * Validation loss: 1.8816230297088623
 Epoch 13/24
 	 * Learning rate: 0.07337766250000001
-	 * Train loss: 1.4549413919448853
-	 * Validation loss: 1.7708216905593872
+	 * Train loss: 1.3318371772766113
+	 * Validation loss: 1.6246223449707031
 Epoch 14/24
 	 * Learning rate: 0.048255175
-	 * Train loss: 1.2950918674468994
-	 * Validation loss: 1.6567225456237793
+	 * Train loss: 1.2529141902923584
+	 * Validation loss: 1.5969176292419434
 Epoch 15/24
 	 * Learning rate: 0.02313268750000002
-	 * Train loss: 1.1517096757888794
-	 * Validation loss: 1.4936554431915283
+	 * Train loss: 1.1526765823364258
+	 * Validation loss: 1.549216866493225
 Epoch 16/24
 	 * Learning rate: 0.0020097999999999575
-	 * Train loss: 1.1114230155944824
-	 * Validation loss: 1.4686557054519653
+	 * Train loss: 1.110642671585083
+	 * Validation loss: 1.5057265758514404
 Epoch 17/24
 	 * Learning rate: 0.027132287500000022
-	 * Train loss: 1.1377086639404297
-	 * Validation loss: 1.496978998184204
+	 * Train loss: 1.1396161317825317
+	 * Validation loss: 1.551066279411316
 Epoch 18/24
 	 * Learning rate: 0.052254775
-	 * Train loss: 1.2504031658172607
-	 * Validation loss: 1.6889638900756836
+	 * Train loss: 1.2675336599349976
+	 * Validation loss: 1.705525517463684
 Epoch 19/24
 	 * Learning rate: 0.07737726249999997
-	 * Train loss: 2.371457576751709
-	 * Validation loss: 2.9519362449645996
+	 * Train loss: 1.921264886856079
+	 * Validation loss: 2.4234201908111572
 Epoch 20/24
 	 * Learning rate: 0.09750024999999997
-	 * Train loss: 1.6286702156066895
-	 * Validation loss: 2.0565805435180664
+	 * Train loss: 2.0788350105285645
+	 * Validation loss: 2.4236207008361816
 Epoch 21/24
 	 * Learning rate: 0.0723777625
-	 * Train loss: 1.2437254190444946
-	 * Validation loss: 1.6548670530319214
+	 * Train loss: 1.3832303285598755
+	 * Validation loss: 1.8219436407089233
 Epoch 22/24
 	 * Learning rate: 0.04725527500000002
-	 * Train loss: 1.1330065727233887
-	 * Validation loss: 1.612492561340332
+	 * Train loss: 1.1309150457382202
+	 * Validation loss: 1.5926498174667358
 Epoch 23/24
 	 * Learning rate: 0.022132787500000042
-	 * Train loss: 1.0270788669586182
-	 * Validation loss: 1.5191993713378906
+	 * Train loss: 1.0076671838760376
+	 * Validation loss: 1.5144847631454468
 Epoch 24/24
 	 * Learning rate: 0.0030097000000000253
-	 * Train loss: 0.9860318899154663
-	 * Validation loss: 1.4775148630142212
-Accuracy on test data: 0.5566
+	 * Train loss: 0.9802205562591553
+	 * Validation loss: 1.5028833150863647
+Accuracy on test data: 0.552

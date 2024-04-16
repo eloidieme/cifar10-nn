@@ -50,7 +50,7 @@ def main(seed):
     logger.info("Model created.")
 
     logger.info("Start of main process.")
-    model.run_training(gd_params, figure_savepath=figure_savepath, test_data=(X_test, y_test), model_savepath=model_savepath)
+    model.run_training(gd_params, figure_savepath=figure_savepath, test_data=(X_test, y_test), model_savepath=None)
     logger.info("End of main process.")
 
 if __name__ == '__main__':

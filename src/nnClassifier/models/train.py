@@ -11,13 +11,13 @@ from nnClassifier import logger
 
 N_CLASSES = 10
 N_FEATURES = 3072
-N_HIDDEN_NODES = 250
+N_HIDDEN_NODES = 300
 
 
 class Model:
     def __init__(self, X_train, Y_train, gd_params, lamda=0.0, validation=None, cyclical_lr=False, seed=None) -> None:
         if seed:
-            torch.seed(seed)
+            np.random.seed(seed)
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
         self.X_train = torch.tensor(X_train, dtype=torch.float).to(self.device)
