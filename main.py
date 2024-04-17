@@ -11,6 +11,7 @@ from nnClassifier import logger
 from nnClassifier.data.make_dataset import make_splits, make_splits_full
 from nnClassifier.features.build_features import normalize_splits, augment_data
 from nnClassifier.models.train import Model
+from nnClassifier.models.train_model import OneLayerClassifier
 from nnClassifier.models.predict import predict
 
 def main(seed):
@@ -25,12 +26,13 @@ def main(seed):
 
     parser = argparse.ArgumentParser(description='Argument parser for training.')
 
-    parser.add_argument('-nl', '--n-layers', dest='n_layers', type=int, default=1, help='Specify number of layers.')
-    parser.add_argument('-nb', '--n-batches', dest='n_batch', type=int, default=100, help='Specify number of samples in one batch.')
-    parser.add_argument('-ne', '--n-epochs', dest='n_epochs', type=int, default=40, help='Specify number of epochs.')
+    parser.add_argument('-nl', '--n-layers', dest='n_layers', type=int, default=2, help='Specify number of layers.')
+    parser.add_argument('-nb', '--n-batches', dest='n_batch', type=int, default=270, help='Specify number of samples in one batch.')
+    parser.add_argument('-ne', '--n-epochs', dest='n_epochs', type=int, default=24, help='Specify number of epochs.')
     parser.add_argument('-e', '--eta', dest='eta', type=float, default=0.001, help='Specify value of learning rate eta.')
-    parser.add_argument('-l', '--lambda', dest='lamda', type=float, default=0.0, help='Specify value of regularization factor lambda.')
+    parser.add_argument('-l', '--lambda', dest='lamda', type=float, default=0.0007, help='Specify value of regularization factor lambda.')
     parser.add_argument('-clr', '--cyclical', dest='cyclical_lr', action='store_true', help='Run training with cyclical learning rate.')
+    parser.add_argument('-dr', '--dropout', dest='dropout', type=float, default=None, help='Run training with dropout.')
     
     args = parser.parse_args()
 
@@ -43,10 +45,10 @@ def main(seed):
 
     if args.n_layers == 1:
         model_savepath = f'./models/oneLayerNN_{time()}'
-        # model = OneLayerClassifier(X_aug, Y_aug, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
+        model = OneLayerClassifier(X_aug, Y_aug, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
     elif args.n_layers == 2:
         model_savepath = f'./models/twoLayersNN_{time()}'
-        model = Model(X_aug, Y_aug, gd_params, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
+        model = Model(X_aug, Y_aug, gd_params, dropout_rate=args.dropout, lamda=lamda, cyclical_lr = args.cyclical_lr, validation=(X_val, Y_val, y_val), seed=seed)
     logger.info("Model created.")
 
     logger.info("Start of main process.")

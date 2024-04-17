@@ -15,7 +15,7 @@ N_HIDDEN_NODES = 300
 
 
 class Model:
-    def __init__(self, X_train, Y_train, gd_params, lamda=0.0, validation=None, cyclical_lr=False, seed=None) -> None:
+    def __init__(self, X_train, Y_train, gd_params, dropout_rate=None, lamda=0.0, validation=None, cyclical_lr=False, seed=None) -> None:
         if seed:
             np.random.seed(seed)
         self.device = torch.device(
@@ -23,6 +23,7 @@ class Model:
         self.X_train = torch.tensor(X_train, dtype=torch.float).to(self.device)
         self.Y_train = torch.tensor(Y_train, dtype=torch.float).to(self.device)
         self.gd_params = gd_params
+        self.dropout_rate = dropout_rate
         self.lamda = lamda
         self.validation = validation
         if validation:
@@ -44,9 +45,15 @@ class Model:
         b2 = torch.zeros((N_CLASSES, 1), dtype=torch.float)
         return [W1, W2], [b1, b2]
 
-    def _evaluate_classifier(self, X, Ws, bs):
+    def manual_dropout(self, x, dropout_rate=0.5):
+        mask = (torch.rand(x.shape) > dropout_rate).float().to(x.device)
+        return mask * x / (1.0 - dropout_rate)
+
+    def _evaluate_classifier(self, X, Ws, bs, training):
         s1 = torch.matmul(Ws[0], X) + bs[0]
         H = F.relu(s1)
+        if training and self.dropout_rate:
+            H = self.manual_dropout(H, self.dropout_rate)
         s = torch.matmul(Ws[1], H) + bs[1]
         P = F.softmax(s, dim=0)
 
@@ -55,7 +62,7 @@ class Model:
     def _compute_gradients(self, X_batch, Y_batch, Ws, bs):
         nb = X_batch.shape[1]
         fact = 1.0 / nb
-        H, P = self._evaluate_classifier(X_batch, Ws, bs)
+        H, P = self._evaluate_classifier(X_batch, Ws, bs, True)
         G = -(Y_batch - P)
 
         grad_W2 = fact * torch.matmul(G, H.T)
@@ -83,7 +90,7 @@ class Model:
         return eta_t
 
     def _compute_cost(self, X, Y, Ws, bs):
-        P = self._evaluate_classifier(X, Ws, bs)[-1]
+        P = self._evaluate_classifier(X, Ws, bs, False)[-1]
         fact = 1/X.shape[1]
         log_probs = torch.log(P)
         lcross_sum = -torch.sum(Y * log_probs)
@@ -128,7 +135,7 @@ class Model:
         return self.Ws, self.bs, train_costs, val_costs
 
     def compute_accuracy(self, X, y, Ws, bs):
-        P = self._evaluate_classifier(X, Ws, bs)[-1]
+        P = self._evaluate_classifier(X, Ws, bs, False)[-1]
         y_pred = torch.argmax(P, axis=0)
         correct = y_pred[y == y_pred].shape[0]
         return correct / y_pred.shape[0]
