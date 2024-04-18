@@ -11,7 +11,7 @@ from nnClassifier import logger
 
 N_CLASSES = 10
 N_FEATURES = 3072
-N_HIDDEN_NODES = 300
+N_HIDDEN_NODES = 1500
 
 
 class Model:

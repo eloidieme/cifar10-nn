@@ -1,16 +1,14 @@
-import sys
 from pathlib import Path
 import argparse
 from time import time
-import cProfile, pstats
 
 import numpy as np
 
 from nnClassifier import logger
 
-from nnClassifier.data.make_dataset import make_splits, make_splits_full
+from nnClassifier.data.make_dataset import make_splits_full
 from nnClassifier.features.build_features import normalize_splits, augment_data
-from nnClassifier.models.train import Model
+from nnClassifier.models.train import Model, N_HIDDEN_NODES
 from nnClassifier.models.train_model import OneLayerClassifier
 from nnClassifier.models.predict import predict
 
@@ -28,9 +26,9 @@ def main(seed):
 
     parser.add_argument('-nl', '--n-layers', dest='n_layers', type=int, default=2, help='Specify number of layers.')
     parser.add_argument('-nb', '--n-batches', dest='n_batch', type=int, default=270, help='Specify number of samples in one batch.')
-    parser.add_argument('-ne', '--n-epochs', dest='n_epochs', type=int, default=24, help='Specify number of epochs.')
+    parser.add_argument('-ne', '--n-epochs', dest='n_epochs', type=int, default=40, help='Specify number of epochs.')
     parser.add_argument('-e', '--eta', dest='eta', type=float, default=0.001, help='Specify value of learning rate eta.')
-    parser.add_argument('-l', '--lambda', dest='lamda', type=float, default=0.0007, help='Specify value of regularization factor lambda.')
+    parser.add_argument('-l', '--lambda', dest='lamda', type=float, default=0.007, help='Specify value of regularization factor lambda.')
     parser.add_argument('-clr', '--cyclical', dest='cyclical_lr', action='store_true', help='Run training with cyclical learning rate.')
     parser.add_argument('-dr', '--dropout', dest='dropout', type=float, default=None, help='Run training with dropout.')
     
@@ -41,7 +39,7 @@ def main(seed):
 
     logger.info("Data loaded for training.")
 
-    figure_savepath = Path(f"./reports/figures/tc_{args.n_layers}-{gd_params['n_batch']}-{gd_params['n_epochs']}-{gd_params['eta']}-{lamda}.png")
+    figure_savepath = Path(f"./reports/figures/tc_{args.n_layers}-{N_HIDDEN_NODES}-{gd_params['n_batch']}-{gd_params['n_epochs']}-{gd_params['eta']}-{lamda}-{args.dropout if args.dropout else 0}.png")
 
     if args.n_layers == 1:
         model_savepath = f'./models/oneLayerNN_{time()}'
@@ -52,7 +50,7 @@ def main(seed):
     logger.info("Model created.")
 
     logger.info("Start of main process.")
-    model.run_training(gd_params, figure_savepath=figure_savepath, test_data=(X_test, y_test), model_savepath=None)
+    model.run_training(gd_params, figure_savepath=figure_savepath, test_data=(X_test, y_test), model_savepath=model_savepath)
     logger.info("End of main process.")
 
 if __name__ == '__main__':
