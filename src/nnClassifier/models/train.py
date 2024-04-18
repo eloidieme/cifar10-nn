@@ -83,12 +83,6 @@ class Model:
 
         return [grad_W1, grad_W2], [grad_b1, grad_b2]
 
-    def get_current_learning_rate(self, t, eta_min=1e-5, eta_max=1e-1, n_s=800):
-        cycle = np.floor(1 + t / (2 * n_s))
-        x = np.abs(t / n_s - 2 * cycle + 1)
-        eta_t = eta_min + (eta_max - eta_min) * np.maximum(0, (1 - x))
-        return eta_t
-
     def _compute_cost(self, X, Y, Ws, bs):
         P = self._evaluate_classifier(X, Ws, bs, False)[-1]
         fact = 1/X.shape[1]
@@ -99,30 +93,48 @@ class Model:
             reg_sum += torch.sum(torch.flatten(W**2))
         return fact*lcross_sum + self.lamda*reg_sum
 
-    def mini_batch_gd(self, gd_params, grid_search=False):
+    def mini_batch_gd_adam(self, gd_params, grid_search=False):
         train_costs = [self._compute_cost(
             self.X_train, self.Y_train, self.Ws, self.bs)]
         val_costs = [self._compute_cost(
             self.X_val, self.Y_val, self.Ws, self.bs)] if self.validation else None
         n_batch, n_epochs, eta = gd_params["n_batch"], gd_params["n_epochs"], gd_params["eta"]
-        if self.cyclical_lr:
-            t = 0
-            eta = self.get_current_learning_rate(t)
+        beta_1, beta_2, epsilon = gd_params["beta_1"], gd_params["beta_2"], gd_params["epsilon"]
         dataset = TensorDataset(self.X_train.t(), self.Y_train.t())
         dataloader = DataLoader(dataset, batch_size=n_batch, shuffle=True)
+        m_Ws = []
+        v_Ws = []
+        m_bs = []
+        v_bs = []
+        for idx in range(len(self.Ws)):
+            m_Ws.append(torch.zeros_like(self.Ws[idx]))
+            v_Ws.append(torch.zeros_like(self.Ws[idx]))
+        for idx in range(len(self.bs)):
+            m_bs.append(torch.zeros_like(self.bs[idx]))
+            v_bs.append(torch.zeros_like(self.bs[idx]))
+        t = 1
         for i in range(n_epochs):
             print(f"Epoch {i+1}/{n_epochs}")
             for X_batch, Y_batch in tqdm.tqdm(dataloader, desc="Processing batches"):
                 grads = self._compute_gradients(
                     X_batch.t(), Y_batch.t(), self.Ws, self.bs)
                 for idx, W_grad in enumerate(grads[0]):
-                    self.Ws[idx] -= eta*W_grad
+                    m = beta_1*m_Ws[idx] + (1 - beta_1)*W_grad
+                    v = beta_2*v_Ws[idx] + (1 - beta_2)*(W_grad**2)
+                    m_Ws[idx] = m
+                    v_Ws[idx] = v
+                    m_hat = m/(1 - beta_1**t)
+                    v_hat = v/(1 - beta_2**t)
+                    self.Ws[idx] -= (eta/(np.sqrt(v_hat) + epsilon))*m_hat
                 for idx, b_grad in enumerate(grads[1]):
-                    self.bs[idx] -= eta*b_grad
-                if self.cyclical_lr:
-                    t += 1
-                    eta = self.get_current_learning_rate(t)
-            print(f"\t * Learning rate: {eta}")
+                    m = beta_1*m_bs[idx] + (1 - beta_1)*b_grad
+                    v = beta_2*v_bs[idx] + (1 - beta_2)*(b_grad**2)
+                    m_bs[idx] = m
+                    v_bs[idx] = v
+                    m_hat = m/(1 - beta_1**t)
+                    v_hat = v/(1 - beta_2**t)
+                    self.bs[idx] -= (eta/(np.sqrt(v_hat) + epsilon))*m_hat
+                t += 1
             current_train_loss = self._compute_cost(
                 self.X_train, self.Y_train, self.Ws, self.bs)
             print(f"\t * Train loss: {current_train_loss}")

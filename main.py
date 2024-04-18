@@ -25,16 +25,16 @@ def main(seed):
     parser = argparse.ArgumentParser(description='Argument parser for training.')
 
     parser.add_argument('-nl', '--n-layers', dest='n_layers', type=int, default=2, help='Specify number of layers.')
-    parser.add_argument('-nb', '--n-batches', dest='n_batch', type=int, default=270, help='Specify number of samples in one batch.')
-    parser.add_argument('-ne', '--n-epochs', dest='n_epochs', type=int, default=40, help='Specify number of epochs.')
-    parser.add_argument('-e', '--eta', dest='eta', type=float, default=0.001, help='Specify value of learning rate eta.')
-    parser.add_argument('-l', '--lambda', dest='lamda', type=float, default=0.007, help='Specify value of regularization factor lambda.')
+    parser.add_argument('-nb', '--n-batches', dest='n_batch', type=int, default=200, help='Specify number of samples in one batch.')
+    parser.add_argument('-ne', '--n-epochs', dest='n_epochs', type=int, default=80, help='Specify number of epochs.')
+    parser.add_argument('-e', '--eta', dest='eta', type=float, default=0.00001, help='Specify value of learning rate eta.')
+    parser.add_argument('-l', '--lambda', dest='lamda', type=float, default=0.01, help='Specify value of regularization factor lambda.')
     parser.add_argument('-clr', '--cyclical', dest='cyclical_lr', action='store_true', help='Run training with cyclical learning rate.')
     parser.add_argument('-dr', '--dropout', dest='dropout', type=float, default=None, help='Run training with dropout.')
     
     args = parser.parse_args()
 
-    gd_params = {"n_batch": args.n_batch, "n_epochs": args.n_epochs, "eta": args.eta}
+    gd_params = {"n_batch": args.n_batch, "n_epochs": args.n_epochs, "eta": args.eta, "beta_1": 0.9, "beta_2": 0.999, "epsilon": 1e-8}
     lamda = args.lamda
 
     logger.info("Data loaded for training.")
